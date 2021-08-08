@@ -1,0 +1,119 @@
+import {XMLLoader} from "./XMLLoader";
+import {AssetLoader, AssetManager, ObjectEx} from "phina.js";
+
+export class Tileset extends XMLLoader {
+  constructor(xml) {
+    super();
+    this.image = null;
+    this.tilewidth = 0;
+    this.tileheight = 0;
+    this.tilecount = 0;
+    this.columns = 0;
+    if (xml) {
+      this.loadFromXML(xml).then(() => {});
+    }
+  }
+
+  loadFromXML(xml) {
+    return this._parse(xml);
+  }
+
+  _parse(data) {
+    return new Promise(resolve => {
+      //タイルセット取得
+      const tileset = data.getElementsByTagName('tileset')[0];
+      // const props = this._propertiesToJSON(tileset);
+
+      //タイルセット属性情報取得
+      const attr = this._attrToJSON(tileset);
+      ObjectEx.$safe.call(attr,{
+        tilewidth: 32,
+        tileheight: 32,
+        spacing: 0,
+        margin: 0,
+      });
+      ObjectEx.$extend.call(this, attr);
+      this.chips = [];
+
+      //ソース画像設定取得
+      this.imageName = tileset.getElementsByTagName('image')[0].getAttribute('source');
+
+      //透過色設定取得
+      const trans = tileset.getElementsByTagName('image')[0].getAttribute('trans');
+      if (trans) {
+        this.transR = parseInt(trans.substring(0, 2), 16);
+        this.transG = parseInt(trans.substring(2, 4), 16);
+        this.transB = parseInt(trans.substring(4, 6), 16);
+      }
+
+      //マップチップリスト作成
+      for (let r = 0; r < this.tilecount; r++) {
+        this.chips[r] = {
+          image: this.imageName,
+          x: (r % this.columns) * (this.tilewidth + this.spacing) + this.margin,
+          y: Math.floor(r / this.columns) * (this.tileheight + this.spacing) + this.margin,
+        };
+      }
+
+      //イメージデータ読み込み
+      this._loadImage()
+        .then(() => resolve());
+    });
+  }
+
+  //アセットに無いイメージデータを読み込み
+  _loadImage() {
+    return new Promise(resolve => {
+      const imageSource = {
+        imageName: this.imageName,
+        imageUrl: this.path + this.imageName,
+        transR: this.transR,
+        transG: this.transG,
+        transB: this.transB,
+      };
+
+      let loadImage = null;
+      const image = AssetManager.get('image', imageSource.image);
+      if (image) {
+        this.image = image;
+      } else {
+        loadImage = imageSource;
+      }
+
+      //ロードリスト作成
+      const assets = { image: [] };
+      assets.image[imageSource.imageName] = imageSource.imageUrl;
+
+      if (loadImage) {
+        const loader = new AssetLoader();
+        loader.load(assets);
+        loader.on('load', () => {
+          //透過色設定反映
+          this.image = AssetManager.get('image', imageSource.imageUrl);
+          if (imageSource.transR !== undefined) {
+            const r = imageSource.transR;
+            const g = imageSource.transG;
+            const b = imageSource.transB;
+            this.image.filter((pixel, index, x, y, bitmap) => {
+              const data = bitmap.data;
+              if (pixel[0] === r && pixel[1] === g && pixel[2] === b) {
+                  data[index+3] = 0;
+              }
+            });
+          }
+          resolve();
+        });
+      } else {
+        resolve();
+      }
+    });
+  }
+
+  static register() {
+    //ローダーに追加
+    AssetLoader.register("tsx", function(key, path) {
+      const tsx = new Tileset();
+      return tsx.load(path);
+    });
+  }
+}
