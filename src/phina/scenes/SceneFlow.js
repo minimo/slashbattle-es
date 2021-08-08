@@ -19,7 +19,7 @@ export class SceneFlow extends ManagerScene {
         className: TitleScene,
         nextLabel: "main",
         arguments: {
-          title: "MANEUVER"
+          title: "SLASH BATTLE"
         },
       },{
         label: "main",
