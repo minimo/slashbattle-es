@@ -1,48 +1,39 @@
-phina.namespace(function() {
+import {GL} from "@/phina/phigl/GL";
 
-  phina.define("phigl.WebGLCanvasPool", {
+export class WebGLCanvasPool {
+  constructor() {
+    this._pool = [];
+    this._actives = [];
 
-    _pool: null,
-    _actives: null,
+    this.webglParameters = {};
+  }
 
-    webglParameters: null,
+  create() {
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl", this.webglParameters);
+    canvas.webglId = GL.getId(gl);
+    return canvas;
+  }
 
-    init: function() {
-      this._pool = [];
-      this._actives = [];
+  get() {
+    if (this._pool.length === 0) {
+      const canvas = this.create();
+      const self = this;
+      canvas.release = function() {
+        self.dispose(this);
+      };
+      this._pool.push(canvas);
+    }
 
-      this.webglParameters = {};
-    },
+    const result = this._pool.shift();
+    this._actives.push(result);
+    return result;
+  }
 
-    create: function() {
-      const canvas = document.createElement("canvas");
-      const gl = canvas.getContext("webgl", this.webglParameters);
-      canvas.webglId = phigl.GL.getId(gl);
-      return canvas;
-    },
-
-    get: function() {
-      if (this._pool.length === 0) {
-        const canvas = this.create();
-        const self = this;
-        canvas.release = function() {
-          self.dispose(this);
-        };
-        this._pool.push(canvas);
-      }
-
-      const result = this._pool.shift();
-      this._actives.push(result);
-      return result;
-    },
-
-    dispose: function(canvas) {
-      if (this._actives.contains(canvas)) {
-        this._actives.erase(canvas);
-        this._pool.push(canvas);
-      }
-    },
-
-  });
-
-});
+  dispose(canvas) {
+    if (this._actives.contains(canvas)) {
+      this._actives.erase(canvas);
+      this._pool.push(canvas);
+    }
+  }
+}

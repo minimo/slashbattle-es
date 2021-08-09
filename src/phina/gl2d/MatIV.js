@@ -9,11 +9,11 @@ const ARRAY = (typeof Float32Array !== 'undefined') ? Float32Array : Array;
 
 export class MatIV {
   // create関数だけ書き換え
-  static _create(){
+  static _create() {
     return new ARRAY(16);
   }
 
-  static identity(dest){
+  static identity(dest) {
     dest[0]  = 1; dest[1]  = 0; dest[2]  = 0; dest[3]  = 0;
     dest[4]  = 0; dest[5]  = 1; dest[6]  = 0; dest[7]  = 0;
     dest[8]  = 0; dest[9]  = 0; dest[10] = 1; dest[11] = 0;
@@ -21,7 +21,7 @@ export class MatIV {
     return dest;
   }
 
-  static create(){
+  static create() {
     return this.identity(this._create());
   }
 
@@ -53,7 +53,7 @@ export class MatIV {
     return dest;
   }
 
-  static cale(mat, vec, dest){
+  static cale(mat, vec, dest) {
     dest[0]  = mat[0]  * vec[0];
     dest[1]  = mat[1]  * vec[0];
     dest[2]  = mat[2]  * vec[0];
@@ -73,7 +73,7 @@ export class MatIV {
     return dest;
   }
 
-  static translate(mat, vec, dest){
+  static translate(mat, vec, dest) {
     dest[0] = mat[0]; dest[1] = mat[1]; dest[2]  = mat[2];  dest[3]  = mat[3];
     dest[4] = mat[4]; dest[5] = mat[5]; dest[6]  = mat[6];  dest[7]  = mat[7];
     dest[8] = mat[8]; dest[9] = mat[9]; dest[10] = mat[10]; dest[11] = mat[11];
@@ -84,7 +84,7 @@ export class MatIV {
     return dest;
   }
 
-  static rotate(mat, angle, axis, dest){
+  static rotate(mat, angle, axis, dest) {
     let sq = Math.sqrt(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
     if(!sq) return null;
     let a = axis[0], b = axis[1], c = axis[2];
@@ -125,7 +125,7 @@ export class MatIV {
     return dest;
   }
 
-  static lookAt(eye, center, up, dest){
+  static lookAt(eye, center, up, dest) {
     let eyeX    = eye[0],    eyeY    = eye[1],    eyeZ    = eye[2],
       upX     = up[0],     upY     = up[1],     upZ     = up[2],
       centerX = center[0], centerY = center[1], centerZ = center[2];

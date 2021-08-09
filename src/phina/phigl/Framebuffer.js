@@ -6,6 +6,7 @@ export class Framebuffer {
    * @param  {WebGLRenderingContext} gl context
    * @param {number} width
    * @param {number} height
+   * @param {any} options
    */
   constructor(gl, width, height, options) {
     options = options || {};

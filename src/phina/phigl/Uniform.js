@@ -6,7 +6,7 @@ export class Uniform {
    * @param {WebGLRenderingContext} gl
    * @param {Program} program
    * @param {string} name
-   * @param {any} type
+   * @param {number} type
    */
   constructor(gl, program, name, type) {
     this.gl = gl;

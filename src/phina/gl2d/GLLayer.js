@@ -49,7 +49,7 @@ export class GLLayer extends Layer {
       .ortho(-sw * 0.5, sw * 0.5, -sh * 0.5, sh * 0.5, 0, 1)
       .calcVpMatrix();
 
-    // this.rootRenderTarget = phigl.Framebuffer(gl, sw, sh).bind();
+    // this.rootRenderTarget = new Framebuffer(gl, sw, sh).bind();
 
     this.renderer = new SpriteRenderer(gl);
     this.renderer.uniforms.vpMatrix.value = this.camera.uniformValues().vpMatrix;

@@ -50,6 +50,10 @@ export class FloatTexFramebuffer {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
+  /**
+   * @memberOf FloatTexFramebuffer.prototype
+   * @return {this}
+   */
   bind() {
     const gl = this.gl;
     gl.bindFramebuffer(gl.FRAMEBUFFER, this._framebuffer);
@@ -57,6 +61,10 @@ export class FloatTexFramebuffer {
     return this;
   }
 
+  /**
+   * @memberOf FloatTexFramebuffer.prototype
+   * @return {this}
+   */
   delete() {
     const gl = this.gl;
     gl.deleteFramebuffer(this._framebuffer);
@@ -64,7 +72,11 @@ export class FloatTexFramebuffer {
     return this;
   }
 
-  /** @param  {WebGLRenderingContext} gl */
+  /**
+   * @memberOf FloatTexFramebuffer.prototype
+   * @param  {WebGLRenderingContext} gl
+   * @return {this}
+   */
   static unbind(gl) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }

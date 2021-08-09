@@ -1,132 +1,119 @@
 import {ObjectEx} from "phina.js";
 import {Ibo} from "@/phina/phigl/Ibo";
 import {Vbo} from "@/phina/phigl/Vbo";
+import {Drawable} from "@/phina/phigl/Drawable";
 
-phina.namespace(function() {
-
+export class InstancedDrawable extends Drawable {
   /**
-   * @constructor phigl.InstancedDrawable
-   * @extends {phigl.Drawable}
+   * @constructor InstancedDrawable
+   * @extends {Drawable}
    * @param  {WebGLRenderingContext} gl context
-   * @param {WebGLExtension?} extVao value of gl.getExtension('ANGLE_instanced_arrays')
+   * @param {ANGLE_instanced_arrays} extInstancedArrays value of gl.getExtension('ANGLE_instanced_arrays')
    */
-  phina.define("phigl.InstancedDrawable", {
-    superClass: "phigl.Drawable",
+  constructor(gl, extInstancedArrays) {
+    super(gl);
+    this.ext = extInstancedArrays;
+    this.instanceAttributes = [];
 
-    instanceAttributes: null,
-    ext: null,
+    this.instanceVbo = null;
+    this.instanceStride = 0;
+  }
 
-    instanceVbo: null,
-    instanceStride: 0,
+  declareInstanceAttributes(names) {
+    names = Array.prototype.concat.apply([], arguments);
+    let stride = 0;
+    for (let i = 0; i < names.length; i++) {
+      let attr = names[i];
+      if (typeof attr === "string") attr = this.program.getAttribute(attr);
+      this.instanceAttributes.push(attr);
+      attr._offset = stride;
+      stride += attr.size * 4;
+    }
+    this.instanceStride = stride;
 
-    init: function(gl, extInstancedArrays) {
-      this.superInit(gl);
-      this.ext = extInstancedArrays;
-      this.instanceAttributes = [];
-    },
+    return this;
+  }
 
-    declareInstanceAttributes: function(names) {
-      names = Array.prototype.concat.apply([], arguments);
+  setInstanceAttributes(names) {
+    console.warn("deprecated");
+    return this.declareInstanceAttributes(names);
+  }
 
-      var gl = this.gl;
-      var ext = this.ext;
+  setInstanceAttributeVbo(vbo) {
+    this.instanceVbo = vbo;
 
-      var stride = 0;
-      for (var i = 0; i < names.length; i++) {
-        var attr = names[i];
-        if (typeof attr === "string") attr = this.program.getAttribute(attr);
-        this.instanceAttributes.push(attr);
-        attr._offset = stride;
-        stride += attr.size * 4;
-      }
-      this.instanceStride = stride;
+    this.instanceVbo.bind();
+    let iStride = this.instanceStride;
+    this.instanceAttributes.forEach(function(v) { v.specify(iStride) });
+    Vbo.unbind(this.gl);
 
-      return this;
-    },
+    return this;
+  }
 
-    setInstanceAttributes: function(names) {
-      console.warn("deprecated");
-      return this.declareInstanceAttributes(names);
-    },
-    
-    setInstanceAttributeVbo: function(vbo) {
-      this.instanceVbo = vbo;
+  setInstanceAttributeData(data) {
+    if (!this.instanceVbo) this.instanceVbo = new Vbo(this.gl, this.gl.DYNAMIC_DRAW);
+    this.instanceVbo.set(data);
 
-      this.instanceVbo.bind();
-      var iStride = this.instanceStride;
-      this.instanceAttributes.forEach(function(v, i) { v.specify(iStride) });
-      phigl.Vbo.unbind(this.gl);
+    this.instanceVbo.bind();
+    let iStride = this.instanceStride;
+    this.instanceAttributes.forEach(function(v) { v.specify(iStride) });
+    Vbo.unbind(this.gl);
 
-      return this;
-    },
+    return this;
+  }
 
-    setInstanceAttributeData: function(data) {
-      if (!this.instanceVbo) this.instanceVbo = phigl.Vbo(this.gl, this.gl.DYNAMIC_DRAW);
-      this.instanceVbo.set(data);
+  setInstanceAttributeDataArray(dataArray) {
+    if (!this.instanceVbo) this.instanceVbo = new Vbo(this.gl);
+    this.instanceVbo.setAsInterleavedArray(dataArray);
 
-      this.instanceVbo.bind();
-      var iStride = this.instanceStride;
-      this.instanceAttributes.forEach(function(v, i) { v.specify(iStride) });
-      phigl.Vbo.unbind(this.gl);
+    this.instanceVbo.bind();
+    let iStride = this.instanceStride;
+    this.instanceAttributes.forEach(function(v) { v.specify(iStride) });
+    Vbo.unbind(this.gl);
 
-      return this;
-    },
+    return this;
+  }
 
-    setInstanceAttributeDataArray: function(dataArray) {
-      if (!this.instanceVbo) this.instanceVbo = phigl.Vbo(this.gl);
-      this.instanceVbo.setAsInterleavedArray(dataArray);
+  createVao() {
+    return this;
+  }
 
-      this.instanceVbo.bind();
-      var iStride = this.instanceStride;
-      this.instanceAttributes.forEach(function(v, i) { v.specify(iStride) });
-      phigl.Vbo.unbind(this.gl);
+  draw(instanceCount) {
+    let gl = this.gl;
+    let ext = this.ext;
 
-      return this;
-    },
+    this.program.use();
 
-    createVao: function() {
-      return this;
-    },
+    if (this.indices) this.indices.bind();
+    if (this.vbo) this.vbo.bind();
+    let stride = this.stride;
+    this.attributes.forEach(function(v) {
+      v.enable();
+      v.specify(stride);
+    });
 
-    draw: function(instanceCount) {
-      var gl = this.gl;
-      var ext = this.ext;
+    if (this.instanceVbo) this.instanceVbo.bind();
+    let iStride = this.instanceStride;
+    this.instanceAttributes.forEach(function(v) {
+      v.enable();
+      v.specify(iStride);
+      ext.vertexAttribDivisorANGLE(v._location, 1);
+    });
 
-      this.program.use();
+    ObjectEx.forIn.call(this.uniforms, function(k, v) { v.assign() });
 
-      if (this.indices) this.indices.bind();
-      if (this.vbo) this.vbo.bind();
-      var stride = this.stride;
-      this.attributes.forEach(function(v, i) {
-        v.enable();
-        v.specify(stride);
-      });
+    this.flare("predraw");
+    this.ext.drawElementsInstancedANGLE(this.drawMode, this.indices.length, gl.UNSIGNED_SHORT, 0, instanceCount);
+    this.flare("postdraw");
 
-      if (this.instanceVbo) this.instanceVbo.bind();
-      var iStride = this.instanceStride;
-      this.instanceAttributes.forEach(function(v, i) {
-        v.enable();
-        v.specify(iStride);
-        ext.vertexAttribDivisorANGLE(v._location, 1);
-      });
-
-      ObjectEx.forIn.call(this.uniforms, function(k, v) { v.assign() });
-
-      this.flare("predraw");
-      this.ext.drawElementsInstancedANGLE(this.drawMode, this.indices.length, gl.UNSIGNED_SHORT, 0, instanceCount);
-      this.flare("postdraw");
-
-      this.attributes.forEach(function(v, i) {
-        v.disable();
-      });
-      this.instanceAttributes.forEach(function(v, i) {
-        v.disable();
-        ext.vertexAttribDivisorANGLE(v._location, 0);
-      });
-      Ibo.unbind(gl);
-      Vbo.unbind(gl);
-    },
-
-  });
-
-});
+    this.attributes.forEach(function(v) {
+      v.disable();
+    });
+    this.instanceAttributes.forEach(function(v) {
+      v.disable();
+      ext.vertexAttribDivisorANGLE(v._location, 0);
+    });
+    Ibo.unbind(gl);
+    Vbo.unbind(gl);
+  }
+}

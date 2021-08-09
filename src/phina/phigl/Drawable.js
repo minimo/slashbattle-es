@@ -160,7 +160,7 @@ export class Drawable extends EventDispatcher {
     const gl = this.gl;
     const stride = this.stride;
 
-    if (!this.extVao) this.extVao = new Extensions.getVertexArrayObject(gl);
+    if (!this.extVao) this.extVao = Extensions.getVertexArrayObject(gl);
     if (!this.vao) this.vao = this.extVao.createVertexArrayOES();
 
     this.extVao.bindVertexArrayOES(this.vao);

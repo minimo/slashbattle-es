@@ -1,6 +1,7 @@
 import {Drawable} from "@/phina/phigl/Drawable";
 import {VertexShader} from "@/phina/phigl/Shader";
 import {Program} from "@/phina/phigl/Program";
+import {ObjectEx} from "phina.js";
 
 export class PostProcessing {
   /**
@@ -58,7 +59,7 @@ export class PostProcessing {
    */
   setUniforms(uniformValues) {
     const uniforms = this.drawer.uniforms;
-    uniformValues.forIn(function(k, v) {
+    ObjectEx.forIn.call(uniformValues, function(k, v) {
       uniforms[k].value = v;
     });
   }
