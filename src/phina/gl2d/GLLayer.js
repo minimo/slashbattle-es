@@ -8,7 +8,7 @@ import {SpriteRenderer} from "@/phina/gl2d/SpriteRenderer";
  * 表示用Layerクラス
  * 基本的にはこれしか使わない
  */
-export class GLLayer extends Layer{
+export class GLLayer extends Layer {
 
   constructor(param) {
     super(param);
@@ -62,7 +62,7 @@ export class GLLayer extends Layer{
 
     // webgl未対応の場合
     if (!gl) {
-      return phina.display.Layer.prototype.draw.apply(this, arguments);
+      return Layer.prototype.draw.apply(this, arguments);
     }
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -72,7 +72,6 @@ export class GLLayer extends Layer{
       for (let i = 0, len = tempChildren.length; i < len; ++i) {
         renderer.render(tempChildren[i]);
       }
-
       renderer.flush();
     }
 

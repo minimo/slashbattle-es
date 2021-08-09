@@ -3,6 +3,7 @@ import {Vbo} from "@/phina/phigl/Vbo";
 import {GLTexture} from "@/phina/phigl/GLTexture";
 import {FragmentShader, VertexShader} from "@/phina/phigl/Shader";
 import {Program} from "@/phina/phigl/Program";
+import {ObjectEx} from "phina.js";
 
 let nextPow2 = function(x) {
   return Math.pow(2, Math.round(Math.max(x,0)).toString(2).length);
@@ -40,7 +41,7 @@ export class SpriteRenderer extends Drawable {
     program = program || SpriteRenderer.createProgram(gl);
     this.setProgram(program)
       // .setAttributes("position", "uv", "color")
-      .setUniforms("vpMatrix", "texture");
+      .declareUniforms("vpMatrix", "texture");
 
     // index 設定
     let indices = [];
@@ -76,10 +77,11 @@ export class SpriteRenderer extends Drawable {
         unitSize: 4,
       },
     ];
-    attributes.each(function(attr) {
+    attributes.forEach(attr => {
       this.fullUnitSize += attr.unitSize;
-      this.setAttribute(attr.name, attr.type, attr.attributeSize, attr.normalize || false);
-    }.bind(this));
+      // this.declareAttributes(attr.name, attr.type, attr.attributeSize, attr.normalize || false);
+      this.declareAttributes(attr.name);
+    });
 
     // 空のvertex buffer生成
     const vbo = new Vbo(this.gl).set(0);
@@ -287,7 +289,7 @@ export class SpriteRenderer extends Drawable {
       // }
 
       // テクスチャのバインド等
-      this.uniforms.forIn(function(k, v) { v.assign() });
+      ObjectEx.forIn.call(this.uniforms, function(k, v) { v.assign() });
       // if (!_assigned) {
       //   // 最初だけ
       //   this.uniforms.forIn(function(k, v) { v.assign() });
@@ -346,7 +348,7 @@ export class SpriteRenderer extends Drawable {
     "}",
   ].join("\n");
 
-  createProgram(gl) {
+  static createProgram(gl) {
     const vertexShader = new VertexShader();
     vertexShader.data = SpriteRenderer.vertexShaderSource;
 

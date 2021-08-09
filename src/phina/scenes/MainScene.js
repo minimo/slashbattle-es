@@ -1,6 +1,7 @@
 import {AssetManager, DisplayElement, ObjectEx, Sprite} from "phina.js";
 import {BaseScene} from "@/phina/scenes/BaseScene";
 import {SCREEN} from "@/phina/app/Setting";
+import {GLLayer} from "@/phina/gl2d/GLLayer";
 
 export class MainScene extends BaseScene {
 
@@ -17,12 +18,14 @@ export class MainScene extends BaseScene {
 
     this.base = new DisplayElement().setPosition(-50, -250).addChildTo(this);
 
+    this.glLayer = new GLLayer().addChildTo(this);
+
     //マップ作成
     this.data = AssetManager.get('tmx', "map1");
     const image = this.data.getImage();
     new Sprite(image)
       .setOrigin(0, 0)
-      .addChildTo(this);
+      .addChildTo(this.glLayer);
   }
 
   update() {

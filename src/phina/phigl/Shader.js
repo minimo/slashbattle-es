@@ -1,4 +1,4 @@
-import {AssetLoader, File} from "phina.js";
+import {AssetLoader, AssetManager, File} from "phina.js";
 
 export class Shader extends File{
   /**
@@ -24,7 +24,7 @@ export class Shader extends File{
   }
 
   /**
-   * @memberOf phigl.Shader.prototype
+   * @memberOf Shader.prototype
    */
   compile(gl) {
     this._resolveInclude();
@@ -46,10 +46,10 @@ export class Shader extends File{
 
   _resolveInclude() {
     const lines = this.data.split(/(\n|\r\n)/);
-    const includes = lines.map((line, index) => {
+    const includes = lines.map(line => {
       if (line.startsWith("// <include>")) {
         const name = line.replace("// <include>", "").trim();
-        const code = phina.asset.AssetManager.get(this.assetType, name);
+        const code = AssetManager.get(this.assetType, name);
         if (code == null) {
           throw `そんなシェーダーないです (${name})`;
         } else {
@@ -62,7 +62,7 @@ export class Shader extends File{
     this.data = includes.join("\n");
   }
 
-  _type(gl) {
+  _type() {
     return 0;
   }
 

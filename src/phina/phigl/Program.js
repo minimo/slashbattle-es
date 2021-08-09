@@ -1,4 +1,6 @@
 import {AssetManager} from "phina.js";
+import {Attribute} from "@/phina/phigl/Attribute";
+import {Uniform} from "@/phina/phigl/Uniform";
 
 let id = 0;
 
@@ -88,11 +90,11 @@ export class Program {
   /**
    * @param {string} name
    * @param {number} type
-   * @return {phigl.Attribute}
+   * @return {Attribute}
    */
   getAttribute(name, type) {
     if (!this._attributes[name]) {
-      this._attributes[name] = phigl.Attribute(this.gl, this._program, name, type);
+      this._attributes[name] = new Attribute(this.gl, this._program, name, type);
     }
     return this._attributes[name];
   }

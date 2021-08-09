@@ -194,7 +194,7 @@ export class Drawable extends EventDispatcher {
       m[name] = program.getUniform(name);
       return m;
     }, {});
-    this.uniforms.$extend(map);
+    ObjectEx.$extend.call(this.uniforms, map)
     return this;
   }
 
@@ -223,7 +223,7 @@ export class Drawable extends EventDispatcher {
       });
     }
 
-    this.uniforms.forIn(function(k, v) { v.assign() });
+    ObjectEx.forIn.call(this.uniforms, function(k, v) { v.assign() });
 
     this.flare("predraw");
     this.gl.drawElements(this.drawMode, this.indices.length, gl.UNSIGNED_SHORT, 0);
@@ -239,7 +239,7 @@ export class Drawable extends EventDispatcher {
     this.attributes.forEach(function(v) {
       v.disable();
     });
-    this.uniforms.forIn(function(k, v) { v.reassign() });
+    ObjectEx.forIn.call(this.uniforms, function(k, v) { v.reassign() });
 
     // console.log("-- end");
   }

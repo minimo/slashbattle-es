@@ -1,3 +1,7 @@
+import {ObjectEx} from "phina.js";
+import {Ibo} from "@/phina/phigl/Ibo";
+import {Vbo} from "@/phina/phigl/Vbo";
+
 phina.namespace(function() {
 
   /**
@@ -106,7 +110,7 @@ phina.namespace(function() {
         ext.vertexAttribDivisorANGLE(v._location, 1);
       });
 
-      this.uniforms.forIn(function(k, v) { v.assign() });
+      ObjectEx.forIn.call(this.uniforms, function(k, v) { v.assign() });
 
       this.flare("predraw");
       this.ext.drawElementsInstancedANGLE(this.drawMode, this.indices.length, gl.UNSIGNED_SHORT, 0, instanceCount);
@@ -119,8 +123,8 @@ phina.namespace(function() {
         v.disable();
         ext.vertexAttribDivisorANGLE(v._location, 0);
       });
-      phigl.Ibo.unbind(gl);
-      phigl.Vbo.unbind(gl);
+      Ibo.unbind(gl);
+      Vbo.unbind(gl);
     },
 
   });
