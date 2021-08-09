@@ -73,6 +73,7 @@ export class GLLayer extends Layer {
         renderer.render(tempChildren[i]);
       }
       renderer.flush();
+      // console.log("##", this.children.length)
     }
 
     // gl.flush();

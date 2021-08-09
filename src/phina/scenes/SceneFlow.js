@@ -2,6 +2,7 @@ import {LoadingScene, ManagerScene} from "phina.js";
 import {AssetCatalog} from "@/phina/app/AssetCatalog";
 import {TitleScene} from "@/phina/scenes/TitleScene";
 import {MainScene} from "./MainScene";
+import {SCREEN} from "@/phina/app/Setting";
 
 export class SceneFlow extends ManagerScene {
   constructor() {
@@ -19,7 +20,9 @@ export class SceneFlow extends ManagerScene {
         className: TitleScene,
         nextLabel: "main",
         arguments: {
-          title: "SLASH BATTLE"
+          title: "SLASH BATTLE",
+          width: SCREEN.width,
+          height: SCREEN.height,
         },
       },{
         label: "main",

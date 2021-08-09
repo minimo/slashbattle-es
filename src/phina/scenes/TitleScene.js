@@ -3,7 +3,7 @@ import {DisplayScene, Keyboard, Label, ObjectEx} from "phina.js";
 export class TitleScene extends DisplayScene {
 
   constructor(params) {
-    params = ObjectEx.$safe.call({}, params, TitleScene.defaults);
+    params = ObjectEx.$safe.call(params || {}, TitleScene.defaults);
     super(params);
 
     this.backgroundColor = params.backgroundColor;
@@ -50,15 +50,14 @@ export class TitleScene extends DisplayScene {
     }
   }
 
+  static defaults = {
+    title: 'phina.js games',
+    message: '',
+
+    fontColor: 'white',
+    backgroundColor: 'hsl(200, 80%, 64%)',
+    backgroundImage: '',
+
+    exitType: 'touch',
+  };
 }
-
-TitleScene.defaults = {
-  title: 'phina.js games',
-  message: '',
-
-  fontColor: 'white',
-  backgroundColor: 'hsl(200, 80%, 64%)',
-  backgroundImage: '',
-
-  exitType: 'touch',
-};
